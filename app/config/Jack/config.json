@@ -1,0 +1,25 @@
+{
+  "workflow": "gmail+readWufooGmailRule,drive+createGoogleDocRule,trello+createTrelloCardRule",
+  "status": "enabled",
+  "auth": {
+    "google": {
+      "token": ""
+    },
+    "trello": {
+      "token": "ba9e4ca4449a203ebf3f9e6c7cedbff279acb2a1abfa0370ba8c1ea3de3ed71d",
+      "publicKey": "0946a64172e1eb5c7468da3b772fa43e"
+    }
+  },
+  "gmail": {
+    "search_string": "from:no-reply@wufoo.com subject:Strikingly",
+    "target_email": "yanbin.ge@striking.ly"    
+  },
+  "drive": {
+    "regex_field": "<td id='roField1'[^>]*><div>([^<]*)<\/div><\/td>"    
+  },
+  "trello": {
+    "list_name": "resume",
+    "card_name": "Wufoo Form"
+  }
+}
+  

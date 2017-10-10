@@ -1,0 +1,71 @@
+.container {
+  padding: 20px;
+}
+
+.appIcon {
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  border: 1px solid #ccc;
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+.cell {
+  display: flex;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 30px 20px;
+  align-items: center;
+  cursor: pointer;
+}
+
+.cell .row, .toolbar, .menuItem {
+  display: flex;
+  align-items: center;
+}
+
+.cell .title {
+  font-size: 14px;
+  color: #8c9295;
+  margin-left: 20px;
+  flex: 1;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+}
+
+.loading {
+  font-size: 30px;
+  color: #08c;
+  margin-top: 250px;
+}
+
+.menuIcon {
+  margin-right: 5px;
+  color: inherit;
+  font-size: 16px;
+}
+
+.menuItem:hover {
+  color: #08c;
+}
+
+.gmail {
+  background: transparent url('../../resources/apps/gmail.png') no-repeat center center;
+  background-size: 30px;  
+}
+
+.drive {
+  background: transparent url('../../resources/apps/drive.png') no-repeat center center;
+  background-size: 30px;    
+}
+
+.trello {
+  background: transparent url('../../resources/apps/trello.png') no-repeat center center;
+  background-size: 30px;    
+}
+

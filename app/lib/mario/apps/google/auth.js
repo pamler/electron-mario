@@ -27,12 +27,26 @@ function getNewToken(oauth2Client, scope) {
   });
   // console.log('Authorize this app by visiting this url: ', authUrl);
 
+  const mainWindow = new BrowserWindow({
+    show: false,
+    fullscreenable: false,
+    resizable: false,
+    width: 400,
+    height: 200
+  });
+  mainWindow.loadURL(`file://${__dirname}/auth.html`);
+  mainWindow.show();
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow.webContents.send('authUrl', authUrl);
+  });
+
   return new Promise((resolve, reject) => {
     ipcMain.on('google-auth-sucess', (event, code) => {
+      mainWindow.close();
       oauth2Client.getToken(code, (err, token) => {
         if (err) {
           console.log('Error while trying to retrieve access token', err);
-          return;
+          reject(err);
         }
         oauth2Client.credentials = token;
         storeToken(token);

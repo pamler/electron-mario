@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Mario Auth</title>
+    <script>
+      const {ipcRenderer,shell} = require('electron')
+      ipcRenderer.on('authUrl', (event, url) => {
+        shell.openExternal(url)
+      })
+
+      function saveAuthCode() {
+        let value = document.getElementById('authrization_code').value
+        if(value) {
+          ipcRenderer.send('google-auth-sucess', value);
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <h3>Mario needs your Google Authrization</h3>
+    <p>
+      Please enter the authrization code: 
+    </p>
+    <input id="authrization_code" style="width:200px; height:20px; margin-right:10px;"/>    
+    <Button onclick="saveAuthCode()">Save</Button>
+  </body>
+</html>

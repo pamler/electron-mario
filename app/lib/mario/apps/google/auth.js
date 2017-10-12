@@ -1,5 +1,6 @@
 const fse = require('fs-extra');
-const readline = require('readline');
+const { ipcMain, BrowserWindow } = require('electron');
+const path = require('path');
 const GoogleAuth = require('google-auth-library');
 const APP = require('../../constants');
 
@@ -24,14 +25,10 @@ function getNewToken(oauth2Client, scope) {
     access_type: 'offline',
     scope
   });
-  console.log('Authorize this app by visiting this url: ', authUrl);
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
+  // console.log('Authorize this app by visiting this url: ', authUrl);
+
   return new Promise((resolve, reject) => {
-    rl.question('Enter the code from that page here: ', (code) => {
-      rl.close();
+    ipcMain.on('google-auth-sucess', (event, code) => {
       oauth2Client.getToken(code, (err, token) => {
         if (err) {
           console.log('Error while trying to retrieve access token', err);
@@ -54,7 +51,7 @@ function storeToken(token) {
   try {
     fse.mkdirSync(TOKEN_DIR);
   } catch (err) {
-    if (err.code != 'EEXIST') {
+    if (err.code !== 'EEXIST') {
       throw err;
     }
   }
@@ -75,7 +72,7 @@ class Auth {
   }
 
   authorize() {
-    const credentials = fse.readJsonSync('./google.json');
+    const credentials = fse.readJsonSync(path.join(__dirname, 'google.json'));
     const clientSecret = credentials.client_secret;
     const clientId = credentials.client_id;
     const redirectUrl = credentials.redirect_uris[0];

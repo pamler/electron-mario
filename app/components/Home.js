@@ -25,25 +25,31 @@ export default class Home extends Component {
     });
   }
 
+  selectMenuItem(e, name) {
+    if (e.key === 'run') {
+      ipcRenderer.send('run-pipe', name);
+    }
+  }
+
   renderCell(name, data, index) {
     const menu = (
-      <Menu>
-        <Menu.Item>
+      <Menu onClick={(e) => this.selectMenuItem(e, name)}>
+        <Menu.Item key="run">
           <div className={styles.menuItem}>
             <Icon type="caret-right" className={styles.menuIcon} /> Run
           </div>
         </Menu.Item>
-        <Menu.Item>
+        <Menu.Item key="edit">
           <div className={styles.menuItem}>
             <Icon type="edit" className={styles.menuIcon} /> Edit
           </div>
         </Menu.Item>
-        <Menu.Item>
+        <Menu.Item key="log">
           <div className={styles.menuItem}>
             <Icon type="file-text" className={styles.menuIcon} /> View Log
           </div>
         </Menu.Item>
-        <Menu.Item>
+        <Menu.Item key="delete">
           <div className={styles.menuItem}>
             <Icon type="delete" className={styles.menuIcon} /> Delete
           </div>
@@ -82,12 +88,19 @@ export default class Home extends Component {
       <div className={styles.container}>
         {
           this.state.data ?
-          Object.keys(this.state.data).map((pipeName, index) =>
-            this.renderCell(pipeName, this.state.data[pipeName], index)
-          ) :
-          <div style={{ textAlign: 'center' }}>
-            <Icon type="loading" className={styles.loading} />
-          </div>
+            <div>
+              {
+                Object.keys(this.state.data).map((pipeName, index) =>
+                  this.renderCell(pipeName, this.state.data[pipeName], index))
+              }
+              <div className={styles.cell}>
+                <Icon type="plus-circle-o" style={{ color: '#ddd', fontSize: 45, marginLeft: 10 }} />
+                <span className={styles.addNew}>add a new pipe</span>
+              </div>
+            </div> :
+            <div style={{ textAlign: 'center' }}>
+              <Icon type="loading" className={styles.loading} />
+            </div>
         }
       </div>
     );

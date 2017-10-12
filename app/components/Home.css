@@ -19,6 +19,7 @@
   margin: 30px 20px;
   align-items: center;
   cursor: pointer;
+  height: 72px;
 }
 
 .cell .row, .toolbar, .menuItem {
@@ -31,6 +32,12 @@
   color: #8c9295;
   margin-left: 20px;
   flex: 1;
+}
+
+.addNew {
+  margin-left: 20px;
+  font-size: 16px;
+  color: #ccc;
 }
 
 .toolbar {

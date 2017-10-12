@@ -10,7 +10,7 @@
  *
  * @flow
  */
-import { app, BrowserWindow, Tray } from 'electron';
+import { app, BrowserWindow, Tray, ipcMain } from 'electron';
 import MenuBuilder from './menu';
 
 const Mario = require('./lib/mario');
@@ -18,6 +18,7 @@ const fse = require('fs-extra');
 const path = require('path');
 
 let mainWindow = null;
+const marios = {};
 
 app.dock.hide();
 
@@ -118,8 +119,12 @@ app.on('ready', async () => {
         const rule = pip.split('+')[1];
         mario = mario.pipe(service, require(path.join(__dirname, 'config', key, 'rules', rule)));
       });
-      // mario.run();
+      marios[key] = mario;
     }
   });
+});
+
+ipcMain.on('run-pipe', (event, arg) => {
+  marios[arg].run();
 });
 

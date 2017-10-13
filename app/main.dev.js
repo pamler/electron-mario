@@ -112,7 +112,7 @@ app.on('ready', async () => {
   // Run the mario pipes
   Object.keys(pipes).forEach((key) => {
     if (pipes[key].status === 'enabled' && pipes[key].workflow) {
-      let mario = new Mario({ config: pipes[key] });
+      let mario = new Mario({ config: pipes[key], name: key });
       const pipArray = pipes[key].workflow.split(',');
       pipArray.forEach((pip) => {
         const service = pip.split('+')[0];
@@ -124,7 +124,10 @@ app.on('ready', async () => {
   });
 });
 
+// click the mainWindow's button - [run]
 ipcMain.on('run-pipe', (event, arg) => {
-  marios[arg].run();
+  marios[arg].run({
+    mainWindow
+  });
 });
 

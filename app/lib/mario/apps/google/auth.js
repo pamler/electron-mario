@@ -20,29 +20,16 @@ const SCOPE = {
  * @param {getEventsCallback} callback The callback to call with the authorized
  *     client.
  */
-function getNewToken(oauth2Client, scope) {
+function getNewToken(pipeName, mainWindow, oauth2Client, scope) {
   const authUrl = oauth2Client.generateAuthUrl({
     access_type: 'offline',
     scope
   });
   // console.log('Authorize this app by visiting this url: ', authUrl);
-
-  const mainWindow = new BrowserWindow({
-    show: false,
-    fullscreenable: false,
-    resizable: false,
-    width: 400,
-    height: 200
-  });
-  mainWindow.loadURL(`file://${__dirname}/auth.html`);
-  mainWindow.show();
-  mainWindow.webContents.on('did-finish-load', () => {
-    mainWindow.webContents.send('authUrl', authUrl);
-  });
+  mainWindow.webContents.send('need-auth', JSON.stringify({ authUrl, pipeName, type: 'google' }));
 
   return new Promise((resolve, reject) => {
     ipcMain.on('google-auth-sucess', (event, code) => {
-      mainWindow.close();
       oauth2Client.getToken(code, (err, token) => {
         if (err) {
           console.log('Error while trying to retrieve access token', err);
@@ -52,6 +39,9 @@ function getNewToken(oauth2Client, scope) {
         storeToken(token);
         resolve(oauth2Client);
       });
+    });
+    ipcMain.on('google-auth-fail', (event, code) => {
+      reject('google auth fail');
     });
   });
 }
@@ -85,7 +75,7 @@ class Auth {
     }
   }
 
-  authorize() {
+  authorize(pipeName, mainWindow) {
     const credentials = fse.readJsonSync(path.join(__dirname, 'google.json'));
     const clientSecret = credentials.client_secret;
     const clientId = credentials.client_id;
@@ -96,7 +86,11 @@ class Auth {
     return new Promise((resolve, reject) => {
       fse.readFile(TOKEN_PATH, (err, token) => {
         if (err) {
-          getNewToken(oauth2Client, this.scope).then((client) => { this.oauth2Client = client; resolve(this.oauth2Client); });
+          getNewToken(pipeName, mainWindow, oauth2Client, this.scope)
+            .then((client) => {
+              this.oauth2Client = client;
+              resolve(this.oauth2Client);
+            });
         } else {
           oauth2Client.credentials = JSON.parse(token);
           this.oauth2Client = oauth2Client;

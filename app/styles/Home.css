@@ -11,15 +11,23 @@
   margin-left: 10px;
 }
 
-.cell {
-  display: flex;
+.cellWrapper {
   border: 1px solid #ddd;
   border-radius: 5px;
   padding: 10px;
   margin: 30px 20px;
-  align-items: center;
+  background: #fff;
+}
+
+.cellWrapper:hover {
+  border: 1px solid #979ea1;  
+}
+
+.cell {
+  display: flex;
+  align-items: center;  
   cursor: pointer;
-  height: 72px;
+  height: 72px;  
 }
 
 .cell .row, .toolbar, .menuItem {
@@ -29,7 +37,7 @@
 
 .cell .title {
   font-size: 14px;
-  color: #8c9295;
+  color: #5f6c72;
   margin-left: 20px;
   flex: 1;
 }
@@ -54,7 +62,7 @@
 .menuIcon {
   margin-right: 5px;
   color: inherit;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .menuItem:hover {

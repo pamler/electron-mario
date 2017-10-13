@@ -1,0 +1,17 @@
+.btnSave {
+  margin-top: 10px;
+}
+
+.link {
+  color: #1bb0e6;
+}
+
+.warning {
+  height: 0px;
+  overflow: hidden;
+  transition:height 0.4s;
+}
+
+.warning.show {
+  height: 188px;
+}

@@ -1,19 +1,17 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import styles from './Home.css';
-import Button from 'antd/lib/button';
-import Icon from 'antd/lib/icon';
-import Switch from 'antd/lib/switch';
-import Menu from 'antd/lib/menu';
-import Dropdown from 'antd/lib/dropdown';
-
+import styles from '../styles/Home.css';
+import { Icon, Switch, Menu, Dropdown, Spin, Tag } from 'antd/lib';
+import Auth from './Auth';
 import { ipcRenderer } from 'electron';
 
 export default class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: null
+      data: null,
+      auth: {},
+      apps: {}
     };
   }
 
@@ -23,11 +21,27 @@ export default class Home extends Component {
         data: JSON.parse(message)
       });
     });
+
+    ipcRenderer.on('need-auth', (event, message) => {
+      const messageObj = JSON.parse(message);
+      this.setState({
+        auth: {
+          ...this.state.auth,
+          [messageObj.pipeName]: messageObj
+        }
+      });
+    });
   }
 
   selectMenuItem(e, name) {
     if (e.key === 'run') {
       ipcRenderer.send('run-pipe', name);
+      this.setState({
+        apps: {
+          ...this.state.apps,
+          [name]: 'running'
+        }
+      });
     }
   }
 
@@ -66,17 +80,46 @@ export default class Home extends Component {
       });
       appJSX.pop();
       return (
-        <div className={styles.cell} key={index}>
-          <div className={styles.row}>
-            { appJSX }
+        <div className={styles.cellWrapper} key={index}>
+          <div className={styles.cell}>
+            <div className={styles.row}>
+              { appJSX }
+            </div>
+            <span className={styles.title}>
+              {name}
+            </span>
+            <div className={styles.toolbar}>
+              {
+                this.state.apps[name] === 'running' && <Spin size="small" style={{ marginRight: 30 }} />
+              }
+              {
+                this.state.apps[name] === 'fail' && <Tag style={{ marginRight: 30 }} color="red">failed</Tag>
+
+              }
+              <Switch defaultChecked={false} />
+              <Dropdown
+                overlay={menu}
+                trigger={this.state.apps[name] === 'running' ? [] : ['click']}
+                placement="bottomLeft"
+              >
+                <Icon
+                  type={this.state.apps[name] === 'running' ? 'minus-circle-o' : 'down-circle-o'}
+                  style={{ color: '#bbb', fontSize: 20, marginLeft: 20 }}
+                />
+              </Dropdown>
+            </div>
           </div>
-          <span className={styles.title}>{name}</span>
-          <div className={styles.toolbar}>
-            <Switch defaultChecked={false} />
-            <Dropdown overlay={menu} placement="bottomLeft">
-              <Icon type="down-circle-o" style={{ color: '#bbb', fontSize: 20, marginLeft: 20 }} />
-            </Dropdown>
-          </div>
+          <Auth
+            onClose={() => {
+              this.state.auth[name] = null;
+              this.state.apps[name] = 'fail';
+              this.setState({
+                auth: this.state.auth,
+                apps: this.state.apps
+              });
+            }}
+            auth={this.state.auth[name]}
+          />
         </div>
       );
     }
@@ -93,9 +136,11 @@ export default class Home extends Component {
                 Object.keys(this.state.data).map((pipeName, index) =>
                   this.renderCell(pipeName, this.state.data[pipeName], index))
               }
-              <div className={styles.cell}>
-                <Icon type="plus-circle-o" style={{ color: '#ddd', fontSize: 45, marginLeft: 10 }} />
-                <span className={styles.addNew}>add a new pipe</span>
+              <div className={styles.cellWrapper}>
+                <div className={styles.cell}>
+                  <Icon type="plus-circle-o" style={{ color: '#ddd', fontSize: 45, marginLeft: 10 }} />
+                  <span className={styles.addNew}>add a new pipe</span>
+                </div>
               </div>
             </div> :
             <div style={{ textAlign: 'center' }}>

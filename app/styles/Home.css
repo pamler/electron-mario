@@ -11,12 +11,19 @@
   margin-left: 10px;
 }
 
-.appIcon:hover {
+.appIcon:hover, .appIcon.selected {
   border: 1px solid #08c;
 }
 
 .iconSuccess {
   color: #00a854;
+  position: relative;
+  left: 35px;
+  top: 25px;
+}
+
+.iconFail {
+  color: #ed612b;
   position: relative;
   left: 35px;
   top: 25px;

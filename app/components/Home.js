@@ -44,16 +44,6 @@ export default class Home extends Component {
         });
       });
     });
-
-    ipcRenderer.on('need-auth', (event, message) => {
-      const messageObj = JSON.parse(message);
-      this.setState({
-        auth: {
-          ...this.state.auth,
-          [messageObj.pipeName]: messageObj
-        }
-      });
-    });
   }
 
   render() {

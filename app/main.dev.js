@@ -130,9 +130,5 @@ app.on('ready', async () => {
 ipcMain.on('run-pipe', (event, pipeName) => {
   marios[pipeName].run({
     mainWindow
-  }).then(() => {
-    mainWindow && mainWindow.webContents.send('pipe-run-success', pipeName);
-  }).catch(() => {
-    mainWindow && mainWindow.webContents.send('pipe-run-fail', pipeName);
   });
 });

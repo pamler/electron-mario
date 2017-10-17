@@ -1,6 +1,6 @@
 module.exports = (app, data) => {
   const fse = require('fs-extra');
-  const config = fse.readJsonSync('../config.json');
+  const config = fse.readJsonSync(`${__dirname}/../config.json`);
 
   // extract candidate name from email content
   const pattern = data.replace(/\n|\r|\t/g, '').match(config.drive.regex_field.value);

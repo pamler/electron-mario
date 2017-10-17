@@ -47,8 +47,17 @@ class Mario {
       promiseChain = promiseChain.then(spider.fn);
     });
     return promiseChain.then(() => {
+      this.chainable.forEach((spider) => {
+        const state = this.logger.getAppState(spider.type);
+        if (state === 'fail') {
+          this.logger.logState({ pipe: 'fail' });
+          return Promise.reject(spider.type);
+        }
+      });
       this.logger.logState({ pipe: 'success' });
+      return Promise.resolve();
     }).catch((e) => {
+      console.log(e);
       this.logger.logState({ pipe: 'fail' });
       return Promise.reject(e);
     });

@@ -18,6 +18,11 @@ class Logger {
   emptyState() {
     fse.outputJsonSync(this.logPath, {});
   }
+
+  getAppState(app) {
+    const jsonData = fse.readJsonSync(this.logPath, { throws: false });
+    return jsonData[app];
+  }
 }
 
 module.exports = Logger;

@@ -17,6 +17,18 @@ export default class Cell extends Component {
     };
   }
 
+  componentDidMount() {
+    ipcRenderer.on('need-auth', (event, message) => {
+      const messageObj = JSON.parse(message);
+      this.setState({
+        auth: {
+          ...this.state.auth,
+          [messageObj.pipeName]: messageObj
+        }
+      });
+    });
+  }
+
   selectMenuItem(e) {
     if (e.key === 'run') {
       ipcRenderer.send('run-pipe', this.props.pipeName);
@@ -59,12 +71,13 @@ export default class Cell extends Component {
         appJSX.push(
           <div
             key={icon}
-            className={`${styles.appIcon} ${styles[icon]} ${styles[appStats]}`}
+            className={`${styles.appIcon} ${styles[icon]} ${styles[appStats]} ${this.state.selectedApp === icon ? styles.selected : ''}`}
             onClick={() => this.setState({
               selectedApp: icon
             })}
           >
             {appStats === 'success' && <Icon type="check-circle" className={styles.iconSuccess} />}
+            {appStats === 'fail' && <Icon type="exclamation-circle" className={styles.iconFail} />}
           </div>
         );
         appJSX.push(<Icon key={`${icon}-caret-right`} type="caret-right" style={{ color: '#666' }} />);
@@ -83,12 +96,6 @@ export default class Cell extends Component {
             <div className={styles.toolbar}>
               {
                 stats && stats.pipe === 'running' && <Spin size="small" style={{ marginRight: 30 }} />
-              }
-              {
-                stats && stats.pipe === 'fail' && <Tag style={{ marginRight: 30 }} color="red">failed</Tag>
-              }
-              {
-                stats && stats.pipe === 'success' && <Tag style={{ marginRight: 30 }} color="green">success</Tag>
               }
               <Switch defaultChecked={false} />
               <Dropdown

@@ -43,7 +43,7 @@ export default class Config extends React.Component {
     let fields = [];
     if (configData) {
       fields = Object.keys(configData).map((field) => (
-        <div className={styles.field}>
+        <div className={styles.field} key={field}>
           <span className={styles.label}>{configData[field].name}</span>
           <Input
             value={this.state.data[field].value}

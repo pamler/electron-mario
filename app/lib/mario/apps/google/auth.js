@@ -85,8 +85,8 @@ class Auth {
     const oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
 
     return new Promise((resolve, reject) => {
-      fse.readFile(TOKEN_PATH, (err, token) => {
-        if (err) {
+      fse.readFile(TOKEN_PATH, (error, token) => {
+        if (error) {
           getNewToken(pipeName, mainWindow, oauth2Client, this.scope)
             .then((client) => {
               this.oauth2Client = client;

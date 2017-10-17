@@ -1,6 +1,6 @@
 module.exports = (app) => {
   const fse = require('fs-extra');
-  const config = fse.readJsonSync('../config.json');
+  const config = fse.readJsonSync(`${__dirname}/../config.json`);
 
   return app.listMessages(config.gmail.search_string.value)
     .then((data) => app.getMessageById(data[0].id))

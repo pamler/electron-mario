@@ -11,6 +11,26 @@
   margin-left: 10px;
 }
 
+.iconSuccess {
+  color: #00a854;
+  position: relative;
+  left: 35px;
+  top: 25px;
+}
+
+.appIcon.success {
+  border: 1px solid #00a854;  
+}
+
+.appIcon.fail {
+  border: 1px solid #ed612b;  
+}
+
+.appIcon.running {
+  animation: rotate 3s linear infinite;
+  -webkit-animation: rotate 3s linear infinite;
+}
+
 .cellWrapper {
   border: 1px solid #ddd;
   border-radius: 5px;
@@ -71,16 +91,36 @@
 
 .gmail {
   background: transparent url('../../resources/apps/gmail.png') no-repeat center center;
-  background-size: 30px;  
+  background-size: 28px;  
 }
 
 .drive {
   background: transparent url('../../resources/apps/drive.png') no-repeat center center;
-  background-size: 30px;    
+  background-size: 28px;    
 }
 
 .trello {
   background: transparent url('../../resources/apps/trello.png') no-repeat center center;
-  background-size: 30px;    
+  background-size: 28px;    
 }
 
+@keyframes rotate {
+  from{transform:rotate(0deg)}
+  to{transform:rotate(360deg)}
+}
+@-webkit-keyframes rotate{
+  from{-webkit-transform:rotate(0deg)}
+  to{-webkit-transform:rotate(360deg)}
+}
+@-moz-keyframes rotate{
+  from{-moz-transform:rotate(0deg)}
+  to{-moz-transform:rotate(360deg)}
+}
+@-ms-keyframes rotate{
+  from{-ms-transform:rotate(0deg)}
+  to{-ms-transform:rotate(360deg)}
+}
+@-o-keyframes rotate{
+  from{-o-transform:rotate(0deg)}
+  to{-o-transform:rotate(360deg)}
+}

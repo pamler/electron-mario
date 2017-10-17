@@ -4,8 +4,8 @@ const path = require('path');
 const GoogleAuth = require('google-auth-library');
 const APP = require('../../constants');
 
-const TOKEN_DIR = `${process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE}/.credentials/`;
-const TOKEN_PATH = `${TOKEN_DIR}google-auth-nodejs.json`;
+const TOKEN_DIR = `${__dirname}/.credentials/`;
+const TOKEN_PATH = `${TOKEN_DIR}google-token.json`;
 
 const SCOPE = {
   [APP.GMAIL]: ['https://www.googleapis.com/auth/gmail.readonly'],
@@ -29,18 +29,19 @@ function getNewToken(pipeName, mainWindow, oauth2Client, scope) {
   mainWindow.webContents.send('need-auth', JSON.stringify({ authUrl, pipeName, type: 'google' }));
 
   return new Promise((resolve, reject) => {
-    ipcMain.on('google-auth-sucess', (event, code) => {
+    ipcMain.on('google-auth-success', (event, code) => {
       oauth2Client.getToken(code, (err, token) => {
         if (err) {
           console.log('Error while trying to retrieve access token', err);
           reject(err);
+        } else {
+          oauth2Client.credentials = token;
+          storeToken(token);
+          resolve(oauth2Client);
         }
-        oauth2Client.credentials = token;
-        storeToken(token);
-        resolve(oauth2Client);
       });
     });
-    ipcMain.on('google-auth-fail', (event, code) => {
+    ipcMain.on('google-auth-fail', () => {
       reject('google auth fail');
     });
   });
@@ -90,6 +91,9 @@ class Auth {
             .then((client) => {
               this.oauth2Client = client;
               resolve(this.oauth2Client);
+            })
+            .catch((err) => {
+              reject(err);
             });
         } else {
           oauth2Client.credentials = JSON.parse(token);

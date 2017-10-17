@@ -9,7 +9,7 @@ class Trello {
     const query = Object.keys(params).map((key) => `${key}=${params[key]}`) || [];
     return new Promise((resolve, reject) => {
       this.trello.get(`/1/members/me/boards?${query.join('&')}`, (err, data) => {
-        if (err) throw err;
+        if (err) reject(err);
         let boardId = '';
         for (let i = 0; i < data.length; i++) {
           if (data[i].name === name) {
@@ -26,7 +26,7 @@ class Trello {
     const query = Object.keys(params).map((key) => `${key}=${params[key]}`) || [];
     return new Promise((resolve, reject) => {
       this.trello.get(`/1/boards/${boardId}/lists${query.join('&')}`, (err, data) => {
-        if (err) throw err;
+        if (err) reject(err);
         let listId = '';
         for (let i = 0; i < data.length; i++) {
           if (data[i].name === name) {
@@ -42,7 +42,7 @@ class Trello {
   createCard(listId, params = {}) {
     return new Promise((resolve, reject) => {
       this.trello.post(`/1/cards?idList=${listId}`, params, (err, data) => {
-        if (err) throw err;
+        if (err) reject(err);
         resolve(data.id);
       });
     });
@@ -51,8 +51,8 @@ class Trello {
   attachCard(cardId, attachments = {}) {
     return new Promise((resolve, reject) => {
       this.trello.post(`/1/cards/${cardId}/attachments`, attachments, (err, data) => {
-        if (err) throw err;
-        console.log('success');
+        if (err) reject(err);
+        resolve(data);
       });
     });
   }

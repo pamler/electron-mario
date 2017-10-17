@@ -98,6 +98,8 @@ app.on('window-all-closed', () => {
   }
 });
 
+const LOG_STATE_FILE_NAME = 'run-state.json';
+
 app.on('ready', async () => {
   if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
     await installExtensions();
@@ -112,7 +114,7 @@ app.on('ready', async () => {
   // Run the mario pipes
   Object.keys(pipes).forEach((key) => {
     if (pipes[key].status === 'enabled' && pipes[key].workflow) {
-      let mario = new Mario({ config: pipes[key], name: key });
+      let mario = new Mario({ config: pipes[key], name: key, loggerPath: path.join(__dirname, 'config', key, 'logs', LOG_STATE_FILE_NAME) });
       const pipArray = pipes[key].workflow.split(',');
       pipArray.forEach((pip) => {
         const service = pip.split('+')[0];
@@ -125,9 +127,12 @@ app.on('ready', async () => {
 });
 
 // click the mainWindow's button - [run]
-ipcMain.on('run-pipe', (event, arg) => {
-  marios[arg].run({
+ipcMain.on('run-pipe', (event, pipeName) => {
+  marios[pipeName].run({
     mainWindow
+  }).then(() => {
+    mainWindow && mainWindow.webContents.send('pipe-run-success', pipeName);
+  }).catch(() => {
+    mainWindow && mainWindow.webContents.send('pipe-run-fail', pipeName);
   });
 });
-

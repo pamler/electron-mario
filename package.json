@@ -187,6 +187,7 @@
   },
   "dependencies": {
     "antd": "^2.13.4",
+    "chokidar": "^1.7.0",
     "config-yml": "^0.8.0",
     "devtron": "^1.4.0",
     "electron-debug": "^1.2.0",

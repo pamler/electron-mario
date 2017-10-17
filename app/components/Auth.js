@@ -1,10 +1,22 @@
 import React, { Component } from 'react';
+import ReactDom from 'react-dom';
 import { Alert, Input, Button } from 'antd/lib';
 import { shell, ipcRenderer } from 'electron';
 
 import styles from '../styles/Auth.css';
 
 export default class Auth extends Component {
+
+  constructor(props) {
+    super(props);
+    this.saveToken = this.saveToken.bind(this);
+  }
+
+  saveToken() {
+    const value = ReactDom.findDOMNode(this.refs.codeInput).value;
+    ipcRenderer.send('google-auth-success', value);
+    this.props.onClose();
+  }
 
   renderContent(auth) {
     if (auth) {
@@ -19,8 +31,8 @@ export default class Auth extends Component {
                   <a className={styles.link} onClick={() => shell.openExternal(auth.authUrl)}>Authorization Link</a>
                   <div>
                     <span>Then enter the authrization code: </span>
-                    <Input placeholder="Please input the authrization code" />
-                    <Button type="primary" className={styles.btnSave}>save</Button>
+                    <Input placeholder="Please input the authrization code" ref="codeInput" />
+                    <Button type="primary" className={styles.btnSave} onClick={this.saveToken}>save</Button>
                   </div>
                 </div>
               }

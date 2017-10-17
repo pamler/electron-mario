@@ -9,11 +9,11 @@ module.exports = {
   createApp: (appType, config) => {
     switch (appType) {
       case APP.GMAIL:
-        return new GmailApp(config.gmail.target_email);
+        return new GmailApp(config.gmail.target_email.value);
       case APP.DRIVE:
         return new DriveApp();
       case APP.TRELLO:
-        return new TrelloApp(config.auth.trello.publicKey, config.auth.trello.token);
+        return new TrelloApp(config.trello.publicKey.value, config.trello.token.value);
       default: break;
     }
   }

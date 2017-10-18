@@ -58,10 +58,10 @@ const createWindow = () => {
 
     mainWindow.loadURL(`file://${__dirname}/app.html`);
 
-    mainWindow.webContents.on('did-finish-load', () => {
-      const pipeData = loadPipeConfig();
-      mainWindow.webContents.send('data', JSON.stringify(pipeData));
-    });
+    // mainWindow.webContents.on('did-finish-load', () => {
+    //   const pipeData = loadPipeConfig();
+    //   mainWindow.webContents.send('data', JSON.stringify(pipeData));
+    // });
 
     mainWindow.on('closed', () => {
       mainWindow = null;
@@ -98,7 +98,7 @@ app.on('window-all-closed', () => {
   }
 });
 
-const LOG_STATE_FILE_NAME = 'run-state.json';
+const LOG_STATE_FILE_NAME = '.run-state.json';
 
 app.on('ready', async () => {
   if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {

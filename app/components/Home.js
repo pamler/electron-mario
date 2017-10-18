@@ -1,64 +1,51 @@
 import React, { Component } from 'react';
 import { Icon } from 'antd/lib';
-import { ipcRenderer } from 'electron';
-
 import styles from '../styles/Home.css';
 import Cell from './Cell';
 
 const path = require('path');
 const chokidar = require('chokidar');
-const fse = require('fs-extra');
 
 export default class Home extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      data: null,
-      pipes: {}
-    };
-  }
+  props: {
+    fetchWorkflow: () => promise,
+    fetchRunState: () => void,
+    config: Object,
+    runstate: Object
+  };
 
   componentDidMount() {
     const watcher = chokidar.watch();
 
-    ipcRenderer.on('data', (event, message) => {
-      const workflowData = JSON.parse(message);
-      this.setState({
-        data: workflowData
-      });
+    const { fetchWorkflow, fetchRunState } = this.props;
+    const workflowData = fetchWorkflow();
+    Object.keys(workflowData).forEach((pipeName) => {
+      fetchRunState(pipeName);
+      watcher.add(path.join(__dirname, 'config', pipeName, 'logs', '.run-state.json'));
+    });
 
-      Object.keys(workflowData).forEach((pipeName) => {
-        const filePath = path.join(__dirname, 'config', pipeName, 'logs', 'run-state.json');
-        watcher.add(filePath);
-        this.state.pipes[pipeName] = fse.readJsonSync(filePath, { throws: false });
-        this.setState({
-          pipes: this.state.pipes
-        });
-      });
-
-      watcher.on('change', (filePath) => {
-        const pipeName = filePath.split('/').slice(-3, -2);
-        this.state.pipes[pipeName] = fse.readJsonSync(filePath, { throws: false });
-        this.setState({
-          pipes: this.state.pipes
-        });
-      });
+    watcher.on('change', (filePath, stats) => {
+      const pipeName = filePath.split('/').slice(-3, -2);
+      if (stats.size > 5) {
+        fetchRunState(pipeName[0]);
+      }
     });
   }
 
   render() {
+    const { config, runstate } = this.props;
     return (
       <div className={styles.container}>
         {
-          this.state.data ?
+          config ?
             <div>
               {
-                Object.keys(this.state.data).map((pipeName, index) =>
+                Object.keys(config).map((pipeName, index) =>
                   (<Cell
                     key={pipeName}
                     pipeName={pipeName}
-                    stats={this.state.pipes[pipeName]}
-                    workflow={this.state.data[pipeName]}
+                    stats={runstate[pipeName]}
+                    workflow={config[pipeName]}
                     index={index}
                   />)
               )}

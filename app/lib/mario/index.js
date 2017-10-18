@@ -55,10 +55,12 @@ class Mario {
         }
       });
       this.logger.logState({ pipe: 'success' });
+      this.logger.emptyState();
       return Promise.resolve();
     }).catch((e) => {
       console.log(e);
       this.logger.logState({ pipe: 'fail' });
+      this.logger.emptyState();
       return Promise.reject(e);
     });
   }

@@ -1,11 +1,19 @@
 // @flow
-import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import * as MarioActions from '../actions';
+
 import Home from '../components/Home';
 
-export default class HomePage extends Component {
-  render() {
-    return (
-      <Home />
-    );
-  }
+function mapStateToProps(state) {
+  return {
+    config: state.config,
+    runstate: state.runstate
+  };
 }
+
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators(MarioActions, dispatch);
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);

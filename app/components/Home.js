@@ -4,7 +4,7 @@ import styles from '../styles/Home.css';
 import Cell from './Cell';
 
 const path = require('path');
-const chokidar = require('chokidar');
+const fse = require('fs-extra');
 
 export default class Home extends Component {
   props: {
@@ -15,20 +15,19 @@ export default class Home extends Component {
   };
 
   componentDidMount() {
-    const watcher = chokidar.watch();
-
     const { fetchWorkflow, fetchRunState } = this.props;
     const workflowData = fetchWorkflow();
+
     Object.keys(workflowData).forEach((pipeName) => {
       fetchRunState(pipeName);
-      watcher.add(path.join(__dirname, 'config', pipeName, 'logs', '.run-state.json'));
-    });
-
-    watcher.on('change', (filePath, stats) => {
-      const pipeName = filePath.split('/').slice(-3, -2);
-      if (stats.size > 5) {
-        fetchRunState(pipeName[0]);
-      }
+      const logDir = path.join(__dirname, 'config', pipeName, 'logs');
+      fse.watch(logDir, (eventType, filename) => {
+        if (eventType === 'change' && filename === '.run-state.json') {
+          if (Object.keys(fse.readJsonSync(path.join(logDir, filename))).length) {
+            fetchRunState(pipeName);
+          }
+        }
+      });
     });
   }
 

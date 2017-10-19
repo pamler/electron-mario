@@ -1,6 +1,6 @@
 {
   "name": "electron-react-boilerplate",
-  "productName": "ElectronReact",
+  "productName": "Mario",
   "version": "0.12.0",
   "description": "Electron application boilerplate based on React, React Router, Webpack, React Hot Loader for rapid application development",
   "scripts": {
@@ -31,8 +31,8 @@
   },
   "browserslist": "electron 1.6",
   "build": {
-    "productName": "ElectronReact",
-    "appId": "org.develar.ElectronReact",
+    "productName": "Mario",
+    "appId": "com.strikingly.Mario",
     "files": [
       "dist/",
       "node_modules/",
@@ -185,15 +185,10 @@
     "webpack-dev-server": "^2.5.0",
     "webpack-merge": "^4.1.0"
   },
-  "dependencies": {
-    "config-yml": "^0.8.0",
-    "chokidar": "^1.7.0",    
+  "dependencies": { 
     "devtron": "^1.4.0",
     "electron-debug": "^1.2.0",
     "font-awesome": "^4.7.0",
-    "fs-extra": "^4.0.2",
-    "google-auth-library": "^0.11.0",
-    "googleapis": "^22.2.0",
     "history": "^4.6.3",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",

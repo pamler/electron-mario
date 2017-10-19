@@ -20,6 +20,8 @@ const path = require('path');
 let mainWindow = null;
 const marios = {};
 
+const LOG_STATE_FILE_NAME = '.run-state.json';
+
 app.dock.hide();
 
 if (process.env.NODE_ENV === 'production') {
@@ -98,8 +100,6 @@ app.on('window-all-closed', () => {
   }
 });
 
-const LOG_STATE_FILE_NAME = '.run-state.json';
-
 app.on('ready', async () => {
   if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
     await installExtensions();
@@ -114,7 +114,13 @@ app.on('ready', async () => {
   // Run the mario pipes
   Object.keys(pipes).forEach((key) => {
     if (pipes[key].status === 'enabled' && pipes[key].workflow) {
-      let mario = new Mario({ config: pipes[key], name: key, loggerPath: path.join(__dirname, 'config', key, 'logs', LOG_STATE_FILE_NAME) });
+      const loggerPath = path.join(__dirname, 'config', key, 'logs', LOG_STATE_FILE_NAME);
+      fse.outputJsonSync(loggerPath, {});
+      let mario = new Mario({
+        config: pipes[key],
+        name: key,
+        loggerPath
+      });
       const pipArray = pipes[key].workflow.split(',');
       pipArray.forEach((pip) => {
         const service = pip.split('+')[0];

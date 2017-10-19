@@ -69,9 +69,8 @@ export default class Cell extends Component {
       apps.forEach((icon) => {
         const appStats = stats && stats[icon];
         appJSX.push(
-          <Spin spinning={appStats === 'running'}>
+          <Spin key={icon} spinning={appStats === 'running'}>
             <div
-              key={icon}
               className={`${styles.appIcon} ${styles[icon]} ${this.state.selectedApp === icon ? styles.selected : ''}`}
               onClick={() => this.setState({
                 selectedApp: icon

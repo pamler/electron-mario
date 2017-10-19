@@ -4,8 +4,8 @@ const path = require('path');
 const GoogleAuth = require('google-auth-library');
 const APP = require('../../constants');
 
-const TOKEN_DIR = `${__dirname}/.credentials/`;
-const TOKEN_PATH = `${TOKEN_DIR}google-token.json`;
+const TOKEN_DIR = `${__dirname}/lib/mario/apps/google/.credentials`;
+const TOKEN_PATH = `${TOKEN_DIR}/google-token.json`;
 
 const SCOPE = {
   [APP.GMAIL]: ['https://www.googleapis.com/auth/gmail.readonly'],
@@ -53,13 +53,6 @@ function getNewToken(pipeName, mainWindow, oauth2Client, scope) {
  * @param {Object} token The token to store to disk.
  */
 function storeToken(token) {
-  try {
-    fse.mkdirSync(TOKEN_DIR);
-  } catch (err) {
-    if (err.code !== 'EEXIST') {
-      throw err;
-    }
-  }
   fse.writeFile(TOKEN_PATH, JSON.stringify(token));
   console.log(`Token stored to ${TOKEN_PATH}`);
 }
@@ -77,7 +70,7 @@ class Auth {
   }
 
   authorize(pipeName, mainWindow) {
-    const credentials = fse.readJsonSync(path.join(__dirname, 'google.json'));
+    const credentials = fse.readJsonSync(path.join(TOKEN_DIR, 'google.json'));
     const clientSecret = credentials.client_secret;
     const clientId = credentials.client_id;
     const redirectUrl = credentials.redirect_uris[0];

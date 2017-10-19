@@ -105,7 +105,7 @@ app.on('ready', async () => {
     await installExtensions();
   }
   const pipes = loadPipeConfig();
-  const tray = new Tray(path.join(__dirname, '..', 'resources', 'tray', 'status_bar_icon.png'));
+  const tray = new Tray(path.join(__dirname, 'resources', 'tray', 'status_bar_icon.png'));
   const menuBuilder = new MenuBuilder(app, tray, pipes);
   menuBuilder.buildTrayMenu({
     createWindow,
@@ -125,7 +125,7 @@ app.on('ready', async () => {
       pipArray.forEach((pip) => {
         const service = pip.split('+')[0];
         const rule = pip.split('+')[1];
-        mario = mario.pipe(service, require(path.join(__dirname, 'config', key, 'rules', rule)));
+        mario = mario.pipe(service, require(`./config/${key}/rules/${rule}`));
       });
       marios[key] = mario;
     }
@@ -138,3 +138,8 @@ ipcMain.on('run-pipe', (event, pipeName) => {
     mainWindow
   });
 });
+
+// process.on('unhandledRejection', error => {
+//   // Will print "unhandledRejection err is not defined"
+//   console.log('unhandledRejection', error);
+// });

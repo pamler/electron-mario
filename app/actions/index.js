@@ -2,7 +2,11 @@
 const fse = require('fs-extra');
 const path = require('path');
 
-const CONFIG_PATH = path.join(__dirname, 'config');
+const remote = require('electron').remote;
+
+const appPath = remote.app.getAppPath();
+
+const CONFIG_PATH = path.join(appPath, 'config');
 
 type actionType = {
   +type: string

@@ -96,17 +96,17 @@
 }
 
 .gmail {
-  background: transparent url('../../resources/apps/gmail.png') no-repeat center center;
+  background: transparent url('../resources/apps/gmail.png') no-repeat center center;
   background-size: 28px;  
 }
 
 .drive {
-  background: transparent url('../../resources/apps/drive.png') no-repeat center center;
+  background: transparent url('../resources/apps/drive.png') no-repeat center center;
   background-size: 28px;    
 }
 
 .trello {
-  background: transparent url('../../resources/apps/trello.png') no-repeat center center;
+  background: transparent url('../resources/apps/trello.png') no-repeat center center;
   background-size: 28px;    
 }
 

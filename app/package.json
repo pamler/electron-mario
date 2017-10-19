@@ -14,5 +14,9 @@
   },
   "license": "MIT",
   "dependencies": {
+    "chokidar": "^1.7.0",
+    "gmail-parser": "^1.1.1",
+    "node-trello": "^1.3.0",
+    "antd": "^2.13.4"    
   }
 }

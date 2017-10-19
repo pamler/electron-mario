@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { ipcRenderer } from 'electron';
-import { Icon, Switch, Menu, Dropdown, Spin, Tag } from 'antd/lib';
+import { Icon, Switch, Menu, Dropdown, Spin } from 'antd/lib';
 
 import styles from '../styles/Home.css';
 import Auth from './Auth';
@@ -69,16 +69,18 @@ export default class Cell extends Component {
       apps.forEach((icon) => {
         const appStats = stats && stats[icon];
         appJSX.push(
-          <div
-            key={icon}
-            className={`${styles.appIcon} ${styles[icon]} ${styles[appStats]} ${this.state.selectedApp === icon ? styles.selected : ''}`}
-            onClick={() => this.setState({
-              selectedApp: icon
-            })}
-          >
-            {appStats === 'success' && <Icon type="check-circle" className={styles.iconSuccess} />}
-            {appStats === 'fail' && <Icon type="exclamation-circle" className={styles.iconFail} />}
-          </div>
+          <Spin spinning={appStats === 'running'}>
+            <div
+              key={icon}
+              className={`${styles.appIcon} ${styles[icon]} ${this.state.selectedApp === icon ? styles.selected : ''}`}
+              onClick={() => this.setState({
+                selectedApp: icon
+              })}
+            >
+              {appStats === 'success' && <Icon type="check-circle" className={styles.iconSuccess} />}
+              {appStats === 'fail' && <Icon type="exclamation-circle" className={styles.iconFail} />}
+            </div>
+          </Spin>
         );
         appJSX.push(<Icon key={`${icon}-caret-right`} type="caret-right" style={{ color: '#666' }} />);
       });
@@ -94,9 +96,9 @@ export default class Cell extends Component {
               {name}
             </span>
             <div className={styles.toolbar}>
-              {
+              {/* {
                 stats && stats.pipe === 'running' && <Spin size="small" style={{ marginRight: 30 }} />
-              }
+              } */}
               <Switch defaultChecked={false} />
               <Dropdown
                 overlay={this.renderMenu()}

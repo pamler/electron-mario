@@ -3,6 +3,7 @@ const auth = require('../auth');
 
 class Drive {
   constructor() {
+    this.name = 'drive';
     this.drive = google.drive('v3');
     this.oauth2Client = auth.getClient();
   }

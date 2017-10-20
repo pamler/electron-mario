@@ -35,6 +35,8 @@
     "appId": "com.strikingly.Mario",
     "files": [
       "dist/",
+      "config/",
+      "resources/",
       "node_modules/",
       "app.html",
       "main.prod.js",

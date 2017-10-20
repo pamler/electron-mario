@@ -19,7 +19,7 @@ class Mario {
       fn: (recvData) => {
         this.logger.logState({ [appType]: 'running' });
         const app = AppFactory.createApp(appType, this.config);
-        return rules(app, recvData).then((data) => {
+        return rules(app, recvData, this).then((data) => {
           this.logger.logState({ [appType]: 'success' });
           return Promise.resolve(data);
         }).catch((e) => {

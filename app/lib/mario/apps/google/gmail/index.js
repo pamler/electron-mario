@@ -4,6 +4,7 @@ const auth = require('../auth');
 
 class Gmail {
   constructor(email) {
+    this.name = 'gmail';
     this.email = email;
     this.gmail = google.gmail('v1');
     this.oauth2Client = auth.getClient();

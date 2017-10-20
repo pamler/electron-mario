@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { ipcRenderer } from 'electron';
 import { Icon, Switch, Menu, Dropdown, Spin } from 'antd/lib';
 
+import { MARIO_CONFIG_PATH, MARIO_CONFIG_FILENAME } from '../constants';
 import styles from '../styles/Home.css';
 import Auth from './Auth';
 import Config from './Config';
@@ -13,19 +14,27 @@ export default class Cell extends Component {
     super(props);
     this.state = {
       selectedApp: '',
-      auth: {},
+      auth: null,
     };
   }
 
   componentDidMount() {
-    ipcRenderer.on('need-auth', (event, message) => {
-      const messageObj = JSON.parse(message);
-      this.setState({
-        auth: {
-          ...this.state.auth,
-          [messageObj.pipeName]: messageObj
-        }
-      });
+    ipcRenderer.on('need-auth', (event, msg) => {
+      const messageObj = JSON.parse(msg);
+      if (messageObj.pipeName === this.props.pipeName) {
+        this.setState({
+          auth: messageObj
+        });
+      }
+    });
+
+    ipcRenderer.on('auth-success', (event, msg) => {
+      const messageObj = JSON.parse(msg);
+      if (messageObj.pipeName === this.props.pipeName) {
+        this.setState({
+          auth: null,
+        });
+      }
     });
   }
 
@@ -95,9 +104,6 @@ export default class Cell extends Component {
               {name}
             </span>
             <div className={styles.toolbar}>
-              {/* {
-                stats && stats.pipe === 'running' && <Spin size="small" style={{ marginRight: 30 }} />
-              } */}
               <Switch defaultChecked={false} />
               <Dropdown
                 overlay={this.renderMenu()}
@@ -115,17 +121,9 @@ export default class Cell extends Component {
             configData={data[this.state.selectedApp]}
             app={this.state.selectedApp}
             onClose={() => this.setState({ selectedApp: '' })}
-            filePath={path.join(__dirname, 'config', name, 'config.json')}
+            filePath={path.join(MARIO_CONFIG_PATH, name, MARIO_CONFIG_FILENAME)}
           />
-          <Auth
-            onClose={() => {
-              this.state.auth[name] = null;
-              this.setState({
-                auth: this.state.auth,
-              });
-            }}
-            auth={this.state.auth[name]}
-          />
+          <Auth auth={this.state.auth} onClose={() => this.setState({ auth: null })} />
         </div>
       );
     }

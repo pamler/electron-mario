@@ -35,3 +35,7 @@ a:hover {
   text-decoration: none;
   cursor: pointer;
 }
+
+.ant-message-notice {
+  color: #333;
+}

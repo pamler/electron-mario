@@ -1,14 +1,11 @@
 import React, { Component } from 'react';
 import { Icon } from 'antd/lib';
+import { MARIO_CONFIG_PATH, MARIO_RUNSTATE_FILENAME } from '../constants';
 import styles from '../styles/Home.css';
 import Cell from './Cell';
 
-const remote = require('electron').remote;
-
 const path = require('path');
 const fse = require('fs-extra');
-
-const appPath = remote.app.getAppPath();
 
 export default class Home extends Component {
   props: {
@@ -24,9 +21,9 @@ export default class Home extends Component {
 
     Object.keys(workflowData).forEach((pipeName) => {
       fetchRunState(pipeName);
-      const logDir = path.join(appPath, 'config', pipeName, 'logs');
+      const logDir = path.join(MARIO_CONFIG_PATH, pipeName);
       fse.watch(logDir, (eventType, filename) => {
-        if (eventType === 'change' && filename === '.run-state.json') {
+        if (eventType === 'change' && filename === MARIO_RUNSTATE_FILENAME) {
           if (Object.keys(fse.readJsonSync(path.join(logDir, filename))).length) {
             fetchRunState(pipeName);
           }

@@ -1,12 +1,8 @@
 // @flow
+import { MARIO_CONFIG_PATH, MARIO_RUNSTATE_FILENAME, MARIO_CONFIG_FILENAME } from '../constants';
+
 const fse = require('fs-extra');
 const path = require('path');
-
-const remote = require('electron').remote;
-
-const appPath = remote.app.getAppPath();
-
-const CONFIG_PATH = path.join(appPath, 'config');
 
 type actionType = {
   +type: string
@@ -16,14 +12,14 @@ export const FETCH_WORKFLOW_SUCCESS = 'FETCH_WORKFLOW_SUCCESS';
 export const FETCH_RUNSTATE_SUCCESS = 'FETCH_RUNSTATE_SUCCESS';
 
 export function fetchWorkflow() {
-  const files = fse.readdirSync(CONFIG_PATH, { throws: false });
+  const files = fse.readdirSync(MARIO_CONFIG_PATH, { throws: false });
   const pipes = {};
 
   files.forEach((file) => {
-    const pathname = path.join(CONFIG_PATH, file);
+    const pathname = path.join(MARIO_CONFIG_PATH, file);
     const stat = fse.lstatSync(pathname);
-    if (stat.isDirectory() && fse.existsSync(path.join(pathname, 'config.json'))) {
-      const pipeConfig = fse.readJsonSync(path.join(pathname, 'config.json'));
+    if (stat.isDirectory() && fse.existsSync(path.join(pathname, MARIO_CONFIG_FILENAME))) {
+      const pipeConfig = fse.readJsonSync(path.join(pathname, MARIO_CONFIG_FILENAME));
       pipes[file] = pipeConfig;
     }
   });
@@ -38,7 +34,7 @@ export function fetchWorkflow() {
 }
 
 export function fetchRunState(pipeName: string) {
-  const filePath = path.join(CONFIG_PATH, pipeName, 'logs', '.run-state.json');
+  const filePath = path.join(MARIO_CONFIG_PATH, pipeName, MARIO_RUNSTATE_FILENAME);
   const runState = fse.readJsonSync(filePath, { throws: false });
 
   return {

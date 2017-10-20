@@ -38,6 +38,11 @@ export default class MenuBuilder {
           const mainWindow = createWindow();
           mainWindow.show();
         } },
+      { label: 'Debug',
+        click: () => {
+          const mainWindow = createWindow();
+          mainWindow.openDevTools();
+        } },
       { label: 'Quit',
         click: () => {
           this.application.exit();

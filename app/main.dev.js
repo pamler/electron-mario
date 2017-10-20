@@ -12,6 +12,7 @@
  */
 import { app, BrowserWindow, Tray, ipcMain } from 'electron';
 import MenuBuilder from './menu';
+import { MARIO_CONFIG_PATH, MARIO_RUNSTATE_FILENAME, MARIO_CONFIG_FILENAME } from './constants';
 
 const Mario = require('./lib/mario');
 const fse = require('fs-extra');
@@ -19,8 +20,6 @@ const path = require('path');
 
 let mainWindow = null;
 const marios = {};
-
-const LOG_STATE_FILE_NAME = '.run-state.json';
 
 app.dock.hide();
 
@@ -73,15 +72,14 @@ const createWindow = () => {
 };
 
 const loadPipeConfig = () => {
-  const configDir = path.join(__dirname, 'config');
-  const files = fse.readdirSync(configDir);
+  const files = fse.readdirSync(MARIO_CONFIG_PATH);
   const pipes = {};
 
   files.forEach((file) => {
-    const pathname = path.join(configDir, file);
+    const pathname = path.join(MARIO_CONFIG_PATH, file);
     const stat = fse.lstatSync(pathname);
-    if (stat.isDirectory() && fse.existsSync(path.join(pathname, 'config.json'))) {
-      const pipeConfig = fse.readJsonSync(path.join(pathname, 'config.json'));
+    if (stat.isDirectory() && fse.existsSync(path.join(pathname, MARIO_CONFIG_FILENAME))) {
+      const pipeConfig = fse.readJsonSync(path.join(pathname, MARIO_CONFIG_FILENAME));
       pipes[file] = pipeConfig;
     }
   });
@@ -101,6 +99,9 @@ app.on('window-all-closed', () => {
 });
 
 app.on('ready', async () => {
+  // Create the Config directory
+  fse.ensureDir(MARIO_CONFIG_PATH);
+
   if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
     await installExtensions();
   }
@@ -114,7 +115,7 @@ app.on('ready', async () => {
   // Run the mario pipes
   Object.keys(pipes).forEach((key) => {
     if (pipes[key].status === 'enabled' && pipes[key].workflow) {
-      const loggerPath = path.join(__dirname, 'config', key, 'logs', LOG_STATE_FILE_NAME);
+      const loggerPath = path.join(MARIO_CONFIG_PATH, key, MARIO_RUNSTATE_FILENAME);
       fse.outputJsonSync(loggerPath, {});
       let mario = new Mario({
         config: pipes[key],
@@ -138,8 +139,3 @@ ipcMain.on('run-pipe', (event, pipeName) => {
     mainWindow
   });
 });
-
-// process.on('unhandledRejection', error => {
-//   // Will print "unhandledRejection err is not defined"
-//   console.log('unhandledRejection', error);
-// });

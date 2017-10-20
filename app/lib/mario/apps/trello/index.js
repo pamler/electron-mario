@@ -2,6 +2,7 @@ const NodeTrello = require('node-trello');
 
 class Trello {
   constructor(publicKey, token) {
+    this.name = 'trello';
     this.trello = new NodeTrello(publicKey, token);
   }
 

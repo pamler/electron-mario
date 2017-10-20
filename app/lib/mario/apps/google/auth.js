@@ -1,66 +1,65 @@
+import { MARIO_PATH } from '../../../../constants';
+
 const fse = require('fs-extra');
-const { ipcMain, BrowserWindow } = require('electron');
-const path = require('path');
+const { ipcMain } = require('electron');
 const GoogleAuth = require('google-auth-library');
 const APP = require('../../constants');
+const credentials = require('./.credentials/google.json');
 
-const TOKEN_DIR = `${__dirname}/lib/mario/apps/google/.credentials`;
-const TOKEN_PATH = `${TOKEN_DIR}/google-token.json`;
+// const TOKEN_DIR = `${__dirname}/lib/mario/apps/google/.credentials`;
+const TOKEN_PATH = `${MARIO_PATH}/google-token.json`;
 
 const SCOPE = {
   [APP.GMAIL]: ['https://www.googleapis.com/auth/gmail.readonly'],
   [APP.DRIVE]: ['https://www.googleapis.com/auth/drive'],
 };
 
-/**
- * Get and store new token after prompting for user authorization, and then
- * execute the given callback with the authorized OAuth2 client.
- *
- * @param {google.auth.OAuth2} oauth2Client The OAuth2 client to get token for.
- * @param {getEventsCallback} callback The callback to call with the authorized
- *     client.
- */
-function getNewToken(pipeName, mainWindow, oauth2Client, scope) {
-  const authUrl = oauth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope
-  });
-  // console.log('Authorize this app by visiting this url: ', authUrl);
-  mainWindow.webContents.send('need-auth', JSON.stringify({ authUrl, pipeName, type: 'google' }));
-
-  return new Promise((resolve, reject) => {
-    ipcMain.on('google-auth-success', (event, code) => {
-      oauth2Client.getToken(code, (err, token) => {
-        if (err) {
-          console.log('Error while trying to retrieve access token', err);
-          reject(err);
-        } else {
-          oauth2Client.credentials = token;
-          storeToken(token);
-          resolve(oauth2Client);
-        }
-      });
-    });
-    ipcMain.on('google-auth-fail', () => {
-      reject('google auth fail');
-    });
-  });
-}
-
-/**
- * Store token to disk be used in later program executions.
- *
- * @param {Object} token The token to store to disk.
- */
-function storeToken(token) {
-  fse.writeFile(TOKEN_PATH, JSON.stringify(token));
-  console.log(`Token stored to ${TOKEN_PATH}`);
-}
-
 class Auth {
   constructor() {
     this.scope = [];
     this.oauth2Client = {};
+    this.mainWindow = null;
+    this.pipeName = '';
+    this.promise = new Promise((resolve, reject) => {
+      this.initializeListener(resolve, reject);
+    });
+  }
+
+  initializeListener(resolve, reject) {
+    ipcMain.on('google-auth-token', (event, code) => {
+      this.oauth2Client.getToken(code, (err, token) => {
+        if (err) {
+          console.log('Error while trying to retrieve access token', err);
+          if (this.mainWindow) {
+            this.mainWindow.webContents.send(
+              'auth-fail',
+              JSON.stringify({ err: err.message, pipeName: this.pipeName, type: 'google' })
+            );
+            reject(err);
+          }
+        } else {
+          this.oauth2Client.credentials = token;
+          this.storeToken(token);
+          resolve(this.oauth2Client);
+          if (this.mainWindow) {
+            this.mainWindow.webContents.send(
+              'auth-success',
+              JSON.stringify({ pipeName: this.pipeName, type: 'google' })
+            );
+          }
+        }
+      });
+    });
+
+    ipcMain.on('google-auth-fail', () => {
+      reject('google auth fail');
+      if (this.mainWindow) {
+        this.mainWindow.webContents.send(
+          'auth-fail',
+          JSON.stringify({ err: 'google auth fail', pipeName: this.pipeName, type: 'google' })
+        );
+      }
+    });
   }
 
   addScope(appType) {
@@ -69,18 +68,37 @@ class Auth {
     }
   }
 
-  authorize(pipeName, mainWindow) {
-    const credentials = fse.readJsonSync(path.join(TOKEN_DIR, 'google.json'));
+  getNewToken(scope) {
+    const authUrl = this.oauth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope
+    });
+    this.mainWindow.webContents.send(
+      'need-auth',
+      JSON.stringify({ authUrl, pipeName: this.pipeName, type: 'google' })
+    );
+    return this.promise;
+  }
+
+  storeToken(token) {
+    fse.writeFile(TOKEN_PATH, JSON.stringify(token));
+    console.log(`Token stored to ${TOKEN_PATH}`);
+  }
+
+  authorize(pipeName, win) {
     const clientSecret = credentials.client_secret;
     const clientId = credentials.client_id;
     const redirectUrl = credentials.redirect_uris[0];
     const auth = new GoogleAuth();
-    const oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
+    this.oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
+
+    this.mainWindow = win;
+    this.pipeName = pipeName;
 
     return new Promise((resolve, reject) => {
       fse.readFile(TOKEN_PATH, (error, token) => {
         if (error) {
-          getNewToken(pipeName, mainWindow, oauth2Client, this.scope)
+          this.getNewToken(this.scope)
             .then((client) => {
               this.oauth2Client = client;
               resolve(this.oauth2Client);
@@ -89,8 +107,7 @@ class Auth {
               reject(err);
             });
         } else {
-          oauth2Client.credentials = JSON.parse(token);
-          this.oauth2Client = oauth2Client;
+          this.oauth2Client.credentials = JSON.parse(token);
           resolve(this.oauth2Client);
         }
       });

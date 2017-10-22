@@ -16,7 +16,7 @@ export default class Config extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     const newState = {};
-    if (this.props.app !== nextProps.app && nextProps.app) {
+    if (nextProps.app) {
       Object.keys(nextProps.configData).forEach((field) => {
         newState[field] = {
           disabled: true,
@@ -35,7 +35,6 @@ export default class Config extends React.Component {
       jsonObj[this.props.app][field].value = this.state.data[field].value;
     });
     fse.writeJsonSync(this.props.filePath, jsonObj);
-    this.props.onClose();
   }
 
   render() {

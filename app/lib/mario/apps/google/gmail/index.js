@@ -47,6 +47,8 @@ class Gmail {
         if (!err) {
           const mail = gmailParser.parseGmail(resp);
           resolve(mail);
+        } else {
+          reject(err);
         }
       });
     });

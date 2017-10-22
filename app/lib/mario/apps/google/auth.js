@@ -20,13 +20,10 @@ class Auth {
     this.oauth2Client = {};
     this.mainWindow = null;
     this.pipeName = '';
-    this.promise = new Promise((resolve, reject) => {
-      this.initializeListener(resolve, reject);
-    });
   }
 
-  initializeListener(resolve, reject) {
-    ipcMain.on('google-auth-token', (event, code) => {
+  initializeListenerOnce(resolve, reject) {
+    ipcMain.once('google-auth-token', (event, code) => {
       this.oauth2Client.getToken(code, (err, token) => {
         if (err) {
           console.log('Error while trying to retrieve access token', err);
@@ -51,7 +48,11 @@ class Auth {
       });
     });
 
-    ipcMain.on('google-auth-fail', () => {
+    ipcMain.once('stop-auth', () => {
+      reject('stop google auth');
+    });
+
+    ipcMain.once('google-auth-fail', () => {
       reject('google auth fail');
       if (this.mainWindow) {
         this.mainWindow.webContents.send(
@@ -77,7 +78,9 @@ class Auth {
       'need-auth',
       JSON.stringify({ authUrl, pipeName: this.pipeName, type: 'google' })
     );
-    return this.promise;
+    return new Promise((resolve, reject) => {
+      this.initializeListenerOnce(resolve, reject);
+    });
   }
 
   storeToken(token) {

@@ -67,7 +67,10 @@ export default class Auth extends Component {
               type="warning"
               showIcon
               closable
-              onClose={() => this.props.onClose()}
+              onClose={() => {
+                ipcRenderer.send('stop-auth');
+                this.props.onClose();
+              }}
             />
           );
         default: return null;

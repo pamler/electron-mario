@@ -60,7 +60,6 @@ class Mario {
       }, 2000);
       return Promise.resolve();
     }).catch((e) => {
-      console.log(e);
       this.logger.logState({ pipe: 'fail' });
       setTimeout(() => {
         this.logger.emptyState();

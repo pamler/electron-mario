@@ -19,6 +19,7 @@ const fse = require('fs-extra');
 const path = require('path');
 
 let mainWindow = null;
+let menuBuilder = null;
 const marios = {};
 
 app.dock.hide();
@@ -86,32 +87,7 @@ const loadPipeConfig = () => {
   return pipes;
 };
 
-/**
- * Add event listeners...
- */
-
-app.on('window-all-closed', () => {
-  // Respect the OSX convention of having the application in memory even
-  // after all windows have been closed
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-app.on('ready', async () => {
-  // Create the Config directory
-  fse.ensureDir(MARIO_CONFIG_PATH);
-
-  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-    await installExtensions();
-  }
-  const pipes = loadPipeConfig();
-  const tray = new Tray(path.join(__dirname, 'resources', 'tray', 'status_bar_icon.png'));
-  const menuBuilder = new MenuBuilder(app, tray, pipes);
-  menuBuilder.buildTrayMenu({
-    createWindow,
-  });
-
+const loadMarioConfig = (pipes) => {
   // Run the mario pipes
   Object.keys(pipes).forEach((key) => {
     if (pipes[key].status === 'enabled' && pipes[key].workflow) {
@@ -131,11 +107,52 @@ app.on('ready', async () => {
       marios[key] = mario;
     }
   });
+};
+
+/**
+ * Add event listeners...
+ */
+
+app.on('window-all-closed', () => {
+  // Respect the OSX convention of having the application in memory even
+  // after all windows have been closed
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('ready', async () => {
+  // Create the Config directory
+  fse.ensureDirSync(MARIO_CONFIG_PATH);
+
+  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
+    await installExtensions();
+  }
+  const pipes = loadPipeConfig();
+  const tray = new Tray(path.join(__dirname, 'resources', 'tray', 'status_bar_icon.png'));
+  menuBuilder = new MenuBuilder(app, tray, pipes);
+  menuBuilder.buildTrayMenu({
+    createWindow,
+    pipes
+  });
+  menuBuilder.buildMenu();
+  loadMarioConfig(pipes);
+});
+
+ipcMain.on('set-pipe', () => {
+  const pipes = loadPipeConfig();
+  loadMarioConfig(pipes);
+  menuBuilder.combineMenus(pipes);
 });
 
 // click the mainWindow's button - [run]
 ipcMain.on('run-pipe', (event, pipeName) => {
   marios[pipeName].run({
     mainWindow
-  });
+  }).catch((e) => console.log(e));
+});
+
+process.on('unhandledRejection', error => {
+  // Will print "unhandledRejection err is not defined"
+  console.log('unhandledRejection', error);
 });

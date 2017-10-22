@@ -39,3 +39,11 @@ a:hover {
 .ant-message-notice {
   color: #333;
 }
+
+.ant-upload.ant-upload-drag {
+  border-radius: 5px;
+  padding: 10px;
+  margin: 30px 20px;
+  background: #fff;
+  width: auto;
+}

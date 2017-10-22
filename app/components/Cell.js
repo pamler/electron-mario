@@ -98,7 +98,7 @@ export default class Cell extends Component {
         <div className={styles.cellWrapper}>
           <div className={styles.cell}>
             <div className={styles.row}>
-              { appJSX }
+              {appJSX}
             </div>
             <span className={styles.title}>
               {name}
@@ -123,7 +123,10 @@ export default class Cell extends Component {
             onClose={() => this.setState({ selectedApp: '' })}
             filePath={path.join(MARIO_CONFIG_PATH, name, MARIO_CONFIG_FILENAME)}
           />
-          <Auth auth={this.state.auth} onClose={() => this.setState({ auth: null })} />
+          <Auth
+            auth={this.state.auth}
+            onClose={() => this.setState({ auth: null })}
+          />
         </div>
       );
     }

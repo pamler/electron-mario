@@ -12,7 +12,8 @@ export const FETCH_WORKFLOW_SUCCESS = 'FETCH_WORKFLOW_SUCCESS';
 export const FETCH_RUNSTATE_SUCCESS = 'FETCH_RUNSTATE_SUCCESS';
 
 export function fetchWorkflow() {
-  const files = fse.readdirSync(MARIO_CONFIG_PATH, { throws: false });
+  fse.ensureDirSync(MARIO_CONFIG_PATH);
+  const files = fse.readdirSync(MARIO_CONFIG_PATH);
   const pipes = {};
 
   files.forEach((file) => {

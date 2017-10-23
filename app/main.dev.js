@@ -175,6 +175,8 @@ ipcMain.on('run-pipe', (event, pipeName) => {
     .catch((e) => {
       const logData = fse.readJsonSync(loggerPath, { throws: false });
       menuBuilder.combineMenus(pipes, { [pipeName]: logData.history });
+
+      console.log(e);
     });
 });
 

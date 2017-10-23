@@ -53,6 +53,36 @@ class Gmail {
       });
     });
   }
+
+  setMessageLabelById(messageId, labels) {
+    return new Promise((resolve, reject) => {
+      this.gmail.users.labels.list({
+        userId: this.email,
+        auth: this.oauth2Client,
+      }, (err, resp) => {
+        const labelIds = resp.labels.map((label) => {
+          if (labels.indexOf(label.name) !== -1) {
+            return label.id;
+          }
+          return '';
+        }).filter((id) => id !== '');
+        this.gmail.users.messages.modify({
+          userId: this.email,
+          id: messageId,
+          auth: this.oauth2Client,
+          resource: {
+            addLabelIds: labelIds
+          }
+        }, (err, resp) => {
+          if (!err) {
+            resolve(resp);
+          } else {
+            reject(err);
+          }
+        });
+      });
+    });
+  }
 }
 
 module.exports = Gmail;

@@ -4,15 +4,15 @@ module.exports = (app, data, context) => {
   const config = fse.readJsonSync(`${MARIO_CONFIG_PATH}/${context.name}/${MARIO_CONFIG_FILENAME}`);
 
   // extract candidate name from email content
-  const patterns = data.map((d) => d.replace(/\n|\r|\t/g, '').match(config.drive.regex_field.value));
+  const patterns = data.map((d) => d.replace(/\n|\r|\t/g, '').match(new RegExp(config.drive.regex_field.value)));
   const fileNames = patterns.map((pattern, index) => {
     if (pattern && pattern.length === 2) {
       return pattern[1];
     }
-    return `form-${index}`;
-  });
+    return null;
+  }).filter((f) => !!f);
   const date = `${new Date().getFullYear()}/${new Date().getMonth() + 1}`;
-  let promise = Promise.resolve();
+  let promise = Promise.resolve([]);
   for (let i = 0; i < fileNames.length; i++) {
     const fileName = fileNames[i];
     promise = promise.then(() => app.createFolderInGoogleDrive([date, fileName]))

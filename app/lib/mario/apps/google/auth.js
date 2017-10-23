@@ -10,7 +10,7 @@ const credentials = require('./.credentials/google.json');
 const TOKEN_PATH = `${MARIO_PATH}/google-token.json`;
 
 const SCOPE = {
-  [APP.GMAIL]: ['https://www.googleapis.com/auth/gmail.readonly'],
+  [APP.GMAIL]: ['https://mail.google.com/'],
   [APP.DRIVE]: ['https://www.googleapis.com/auth/drive'],
 };
 

@@ -40,7 +40,7 @@ export function fetchRunState(pipeName: string) {
   return {
     type: FETCH_RUNSTATE_SUCCESS,
     data: {
-      [pipeName]: runState
+      [pipeName]: runState && runState.current
     }
   };
 }

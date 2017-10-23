@@ -35,7 +35,6 @@ class Mario {
   }
 
   run({ mainWindow }) {
-    this.logger.emptyState();
     this.logger.logState({ pipe: 'running', startTime: new Date() });
 
     let promiseChain = new Promise((resolve) => resolve());
@@ -54,15 +53,17 @@ class Mario {
           return Promise.reject(spider.type);
         }
       });
-      this.logger.logState({ pipe: 'success' });
+      this.logger.logState({ pipe: 'success', endTime: new Date() });
+      this.logger.saveState();
       setTimeout(() => {
-        this.logger.emptyState();
+        this.logger.emptyCurrentState();
       }, 2000);
       return Promise.resolve();
     }).catch((e) => {
-      this.logger.logState({ pipe: 'fail' });
+      this.logger.logState({ pipe: 'fail', endTime: new Date() });
+      this.logger.saveState();
       setTimeout(() => {
-        this.logger.emptyState();
+        this.logger.emptyCurrentState();
       }, 2000);
       return Promise.reject(e);
     });

@@ -87,12 +87,26 @@ const loadPipeConfig = () => {
   return pipes;
 };
 
+const loadLogConfig = () => {
+  const files = fse.readdirSync(MARIO_CONFIG_PATH);
+  const logs = {};
+
+  files.forEach((file) => {
+    const pathname = path.join(MARIO_CONFIG_PATH, file);
+    const stat = fse.lstatSync(pathname);
+    if (stat.isDirectory() && fse.existsSync(path.join(pathname, MARIO_RUNSTATE_FILENAME))) {
+      const logConfig = fse.readJsonSync(path.join(pathname, MARIO_RUNSTATE_FILENAME)).history;
+      logs[file] = logConfig;
+    }
+  });
+  return logs;
+};
+
 const loadMarioConfig = (pipes) => {
   // Run the mario pipes
   Object.keys(pipes).forEach((key) => {
     if (pipes[key].status === 'enabled' && pipes[key].workflow) {
       const loggerPath = path.join(MARIO_CONFIG_PATH, key, MARIO_RUNSTATE_FILENAME);
-      fse.outputJsonSync(loggerPath, {});
       let mario = new Mario({
         config: pipes[key],
         name: key,
@@ -129,11 +143,13 @@ app.on('ready', async () => {
     await installExtensions();
   }
   const pipes = loadPipeConfig();
+  const logs = loadLogConfig();
   const tray = new Tray(path.join(__dirname, 'resources', 'tray', 'status_bar_icon.png'));
   menuBuilder = new MenuBuilder(app, tray, pipes);
   menuBuilder.buildTrayMenu({
     createWindow,
-    pipes
+    pipes,
+    logs
   });
   menuBuilder.buildMenu();
   loadMarioConfig(pipes);
@@ -147,9 +163,19 @@ ipcMain.on('set-pipe', () => {
 
 // click the mainWindow's button - [run]
 ipcMain.on('run-pipe', (event, pipeName) => {
-  marios[pipeName].run({
-    mainWindow
-  }).catch((e) => console.log(e));
+  const loggerPath = path.join(MARIO_CONFIG_PATH, pipeName, MARIO_RUNSTATE_FILENAME);
+  const pipes = loadPipeConfig();
+
+  marios[pipeName]
+    .run({ mainWindow })
+    .then(() => {
+      const logData = fse.readJsonSync(loggerPath, { throws: false });
+      menuBuilder.combineMenus(pipes, { [pipeName]: logData.history });
+    })
+    .catch((e) => {
+      const logData = fse.readJsonSync(loggerPath, { throws: false });
+      menuBuilder.combineMenus(pipes, { [pipeName]: logData.history });
+    });
 });
 
 process.on('unhandledRejection', error => {

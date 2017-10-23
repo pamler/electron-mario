@@ -11,15 +11,19 @@ export default class MenuBuilder {
     this.application = app;
   }
 
-  createPipeMenu(pipes) {
+  createPipeMenu(pipes, logs) {
     const pipeMenus = [];
-
     Object.keys(pipes).forEach((key) => {
       const pipeConfig = pipes[key];
       const pipe = { label: key, enabled: true };
       if (pipeConfig.status === 'enabled') {
         pipe.enabled = true;
-        pipe.submenu = [];
+        pipe.submenu = logs && logs[key] ? logs[key].map((item) =>
+          ({
+            label: `${item.endTime.substr(0, 19)} ${item.pipe}`,
+            enabled: false
+          })
+        ) : [];
       } else {
         pipe.enabled = false;
       }
@@ -28,15 +32,23 @@ export default class MenuBuilder {
     return pipeMenus;
   }
 
-  combineMenus(pipes) {
-    const pipeMenus = this.createPipeMenu(pipes);
+  combineMenus(pipes, logs) {
+    const pipeMenus = this.createPipeMenu(pipes, logs);
+    let sectionPipeIndex = 1;
+    for (let i = 0; i < menuConfig.length; i++) {
+      if (menuConfig[i].type === 'separator') {
+        sectionPipeIndex = i;
+        break;
+      }
+    }
+    menuConfig.splice(1, sectionPipeIndex - 1);
     pipeMenus.unshift(1, 0);
     Array.prototype.splice.apply(menuConfig, pipeMenus);
     const contextMenu = Menu.buildFromTemplate(menuConfig);
     this.tray.setContextMenu(contextMenu);
   }
 
-  buildTrayMenu({ createWindow, pipes }) {
+  buildTrayMenu({ createWindow, pipes, logs }) {
     menuConfig = [
       { label: 'My Pipes', enabled: false },
       { type: 'separator' },
@@ -73,7 +85,7 @@ export default class MenuBuilder {
       mainWindow.openDevTools();
     });
 
-    this.combineMenus(pipes);
+    this.combineMenus(pipes, logs);
   }
 
   buildMenu() {

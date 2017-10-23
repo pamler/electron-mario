@@ -7,21 +7,30 @@ class Logger {
 
   logState(keyValue) {
     let jsonData = fse.readJsonSync(this.logPath, { throws: false });
-    jsonData = jsonData || {};
-    jsonData = {
-      ...jsonData,
+    jsonData = jsonData || { current: {}, history: [] };
+    jsonData.current = {
+      ...jsonData.current,
       ...keyValue
     };
     fse.outputJsonSync(this.logPath, jsonData);
   }
 
-  emptyState() {
-    fse.outputJsonSync(this.logPath, {});
+  saveState() {
+    const jsonData = fse.readJsonSync(this.logPath, { throws: false });
+    jsonData.history = jsonData.history || [];
+    jsonData.history.unshift(jsonData.current);
+    fse.outputJsonSync(this.logPath, jsonData);
+  }
+
+  emptyCurrentState() {
+    const jsonData = fse.readJsonSync(this.logPath, { throws: false });
+    jsonData.current = {};
+    fse.outputJsonSync(this.logPath, jsonData);
   }
 
   getAppState(app) {
     const jsonData = fse.readJsonSync(this.logPath, { throws: false });
-    return jsonData[app];
+    return jsonData.current[app];
   }
 }
 

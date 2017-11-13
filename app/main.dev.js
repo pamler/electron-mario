@@ -24,6 +24,9 @@ const marios = {};
 
 app.dock.hide();
 
+process.env.http_proxy = 'http://127.0.0.1:6152';
+process.env.https_proxy = 'http://127.0.0.1:6152';
+
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();

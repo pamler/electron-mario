@@ -13,14 +13,18 @@ module.exports = (app, data, context) => {
   }).filter((f) => !!f);
   const date = `${new Date().getFullYear()}/${new Date().getMonth() + 1}`;
   let promise = Promise.resolve([]);
+  const promiseData = [];
   for (let i = 0; i < fileNames.length; i++) {
     const fileName = fileNames[i];
     promise = promise.then(() => app.createFolderInGoogleDrive([date, fileName]))
       .then((folderId) => app.createDocInGoogleDrive(fileName, folderId, Buffer.from(data[i], 'utf8'), 'text/html'))
-      .then((fileId) => ({
-        name: fileName,
-        url: `https://docs.google.com/document/d/${fileId}`
-      }));
+      .then((fileId) => {
+        promiseData.push({
+          name: fileName,
+          url: `https://docs.google.com/document/d/${fileId}`
+        });
+        return promiseData;
+      });
   }
   return promise;
 };
